@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171717">
+<meta name="description" content="Lista interactiva para llevar el registro de los libros de Stephen King que leíste.">
+
+<title>Stephen King · Mi biblioteca</title>
+<style>
+:root{color-scheme:dark;--bg:#101010;--panel:#1b1b1b;--panel2:#242424;--text:#f4f1eb;--muted:#aaa49a;--accent:#d7a65a;--line:#38342f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#171717ed;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:18px 16px 14px}
+.wrap{max-width:760px;margin:auto}h1{font-size:23px;margin:0 0 4px;letter-spacing:.2px}header p{margin:0;color:var(--muted);font-size:13px}
+.progress{margin-top:14px}.numbers{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);margin-bottom:7px}.bar{height:9px;border-radius:99px;background:#38342f;overflow:hidden}.fill{height:100%;width:0;background:var(--accent);transition:width .2s}
+main{padding:18px 16px 44px}.tools{display:flex;gap:8px;margin:0 0 20px;flex-wrap:wrap}.tools input{flex:1;min-width:160px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:11px 12px;font:inherit}.tools button,.smallbtn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 12px;border-radius:10px;font:inherit;font-size:13px}
+h2{font-size:15px;letter-spacing:1.2px;color:var(--accent);margin:27px 0 11px}.bookgroup{margin:0 0 15px}.bookgroup.series{padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:17px}.bookgroup.series:last-child{border:0}
+h3{font-size:14px;color:#d8d2c8;margin:0 0 8px;font-weight:650}
+.book{display:flex;align-items:center;gap:11px;min-height:43px;padding:7px 8px;border-radius:9px}.book:active{background:var(--panel)}.book input{appearance:none;width:21px;height:21px;flex:none;border:1.5px solid #81796e;border-radius:6px;margin:0;display:grid;place-items:center;background:transparent}.book input:checked{background:var(--accent);border-color:var(--accent)}.book input:checked:after{content:"✓";font-weight:800;color:#171717;font-size:15px}.book span{font-size:15px}.book input:checked+span{color:var(--muted);text-decoration:line-through}
+.empty{color:var(--muted);text-align:center;padding:30px 10px;display:none}.foot{color:var(--muted);font-size:12px;text-align:center;margin-top:30px}
+@media(min-width:600px){header{padding-left:24px;padding-right:24px}main{padding-left:24px;padding-right:24px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>Stephen King · Mi biblioteca</h1><p>Marcá los libros que ya leíste. Tu progreso se guarda en este dispositivo.</p>
+<div class="progress"><div class="numbers"><span id="count">0 leídos</span><span id="percent">0%</span></div><div class="bar"><div class="fill" id="fill"></div></div></div>
+</div></header>
+<main class="wrap">
+<div class="tools">
+<input id="search" type="search" placeholder="Buscar un libro…" aria-label="Buscar un libro">
+<button id="showAll" type="button">Todos</button><button id="showPending" type="button">Pendientes</button>
+</div>
+<div id="catalog"></div><div class="empty" id="empty">No se encontraron libros.</div>
+<div class="tools" style="margin-top:26px">
+<button id="export" type="button">Exportar progreso</button>
+<button id="import" type="button">Importar progreso</button>
+<input id="file" type="file" accept="application/json" hidden>
+<button id="reset" type="button">Borrar marcas</button>
+</div>
+<p class="foot">El progreso se guarda localmente en el navegador. Exportalo si querés conservar una copia.</p>
+</main>
+<script>
+const DATA = [{"section": "SERIES", "groups": [{"name": "La Torre Oscura", "books": ["El pistolero", "La llegada de los tres", "Las tierras baldías", "Mago y cristal", "El viento por la cerradura", "Lobos del Calla", "Canción de Susannah", "La Torre Oscura"]}, {"name": "El resplandor", "books": ["El resplandor", "Doctor Sueño"]}, {"name": "Bill Hodges / Holly Gibney", "books": ["Mr. Mercedes", "Quien pierde paga", "Fin de guardia", "El visitante", "Holly"]}, {"name": "El talismán", "books": ["El talismán", "Casa negra"]}, {"name": "Gwendy", "books": ["La caja de botones de Gwendy", "La pluma mágica de Gwendy", "La última misión de Gwendy"]}, {"name": "La milla verde", "books": ["La milla verde"]}]}, {"section": "AUTOCONCLUSIVOS", "groups": [{"name": "", "books": ["Carrie", "Salem's Lot", "Rabia", "La danza de la muerte (Apocalipsis)", "La larga marcha", "Ojos de fuego", "Carretera maldita", "Cujo", "El fugitivo", "Christine", "Cementerio de animales", "El ciclo del hombre lobo", "Los ojos del dragón", "Maleficio", "Eso", "Misery", "Los tommyknockers", "La mitad oscura", "El juego de Gerald", "Dolores Claiborne", "La tienda", "El retrato de Rose Madder", "Desesperación", "Posesión", "Un saco de huesos", "El cazador de sueños", "Buick 8, un coche perverso", "Colorado Kid", "Cell", "Blaze", "Duma Key", "La cúpula", "11/22/1963", "Joyland", "Revival", "Bellas durmientes", "El Instituto", "Después", "Billy Summers", "Cuento de hadas", "La chica que amaba a Tom Gordon", "Insomnia", "La zona muerta", "El cuerpo", "Elevación"]}]}, {"section": "COLECCIONES DE CUENTOS Y NOVELAS CORTAS", "groups": [{"name": "", "books": ["El umbral de la noche", "Las cuatro estaciones", "Skeleton Crew (La expedición)", "Después de medianoche", "Pesadillas y alucinaciones", "Corazones en la Atlántida", "Todo es eventual", "Después del anochecer", "Todo oscuro, sin estrellas", "El bazar de los malos sueños", "La sangre manda", "Si te gusta la oscuridad"]}]}, {"section": "OTROS", "groups": [{"name": "", "books": ["Danza macabra", "Mientras escribo", "Campeones mundiales al fin", "Hansel y Gretel"]}]}];
+const KEY = "king-reading-checklist-v1";
+let read = new Set();
+try { read = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch(e) {}
+let filter = "all";
+const catalog = document.getElementById("catalog");
+const search = document.getElementById("search");
+function save(){localStorage.setItem(KEY,JSON.stringify([...read]));}
+function allBooks(){return DATA.flatMap(s=>s.groups.flatMap(g=>g.books));}
+function updateProgress(){
+ const total=allBooks().length, done=[...read].filter(x=>allBooks().includes(x)).length;
+ document.getElementById("count").textContent=`${done} de ${total} leídos`;
+ document.getElementById("percent").textContent=`${Math.round(done/total*100)}%`;
+ document.getElementById("fill").style.width=`${done/total*100}%`;
+}
+function render(){
+ catalog.innerHTML="";
+ const q=search.value.trim().toLocaleLowerCase("es");
+ let visible=0;
+ DATA.forEach(section=>{
+  const groups=section.groups.map(group=>{
+   const books=group.books.filter(book=>{
+    const matches=book.toLocaleLowerCase("es").includes(q);
+    const status=filter==="all" || (filter==="pending"?!read.has(book):read.has(book));
+    return matches&&status;
+   });
+   return {...group,books};
+  }).filter(g=>g.books.length);
+  if(!groups.length)return;
+  const h=document.createElement("h2");h.textContent=section.section;catalog.append(h);
+  groups.forEach(group=>{
+   const box=document.createElement("section");box.className="bookgroup"+(section.section==="SERIES"?" series":"");
+   if(group.name){const title=document.createElement("h3");title.textContent=group.name;box.append(title);}
+   group.books.forEach(book=>{
+    visible++;
+    const label=document.createElement("label");label.className="book";
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=read.has(book);cb.setAttribute("aria-label",`Marcar ${book} como leído`);
+    cb.addEventListener("change",()=>{cb.checked?read.add(book):read.delete(book);save();updateProgress();render();});
+    const span=document.createElement("span");span.textContent=book;
+    label.append(cb,span);box.append(label);
+   });
+   catalog.append(box);
+  });
+ });
+ document.getElementById("empty").style.display=visible?"none":"block";
+ updateProgress();
+}
+search.addEventListener("input",render);
+document.getElementById("showAll").onclick=()=>{filter="all";render()};
+document.getElementById("showPending").onclick=()=>{filter="pending";render()};
+document.getElementById("export").onclick=()=>{
+ const blob=new Blob([JSON.stringify([...read],null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mi-progreso-stephen-king.json";a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById("import").onclick=()=>document.getElementById("file").click();
+document.getElementById("file").onchange=async e=>{
+ const f=e.target.files[0];if(!f)return;
+ try{const arr=JSON.parse(await f.text());if(!Array.isArray(arr))throw Error();read=new Set(arr.filter(x=>allBooks().includes(x)));save();render();alert("Progreso importado.");}
+ catch(err){alert("No se pudo importar ese archivo.");}e.target.value="";
+};
+document.getElementById("reset").onclick=()=>{if(confirm("¿Querés borrar todas las marcas de lectura?")){read.clear();save();render();}};
+render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>
